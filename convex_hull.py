@@ -78,8 +78,36 @@ def clockwise_sort(points: List[Point]):
 
 def base_case_hull(points: List[Point]) -> List[Point]:
     """ Base case of the recursive algorithm.
+        (The naive method)
     """
     # TODO: You need to implement this function.
+    # clockwise_sort(points)
+    hull_points = []
+    for idx, point0 in enumerate(points):
+        on_hull = False
+
+        for j in range(idx+1, len(points)):
+            above = False
+            if y_intercept(point0, points[j], points[0][0]) > points[0][1]:
+                above = True
+
+            good_line = True
+            for k in points:
+                y_int = y_intercept(point0, points[j], k[0])
+                if y_int >= k[1] and above:
+                    continue
+                elif y_int <= k[1] and (not above):
+                    continue
+                else:
+                    good_line = False
+                    break
+            if good_line: 
+                on_hull = True
+                break
+
+        if on_hull:
+            hull_points.append(point0)
+
     return points
 
 

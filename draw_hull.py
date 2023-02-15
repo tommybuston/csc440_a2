@@ -5,8 +5,8 @@ from tkinter import NORMAL
 from tkinter import PhotoImage
 from tkinter import Tk
 
-from convex_hull import compute_hull
-
+# from convex_hull import compute_hull
+from convex_hull import base_case_hull
 
 def draw_point(canvas, x, y):
     return canvas.create_image((x, y), image=ram, state=NORMAL)
@@ -19,7 +19,8 @@ def add_point(event):
 
 
 def draw_hull():
-    hull = copy.copy(compute_hull(points))
+    # hull = copy.copy(compute_hull(points))
+    hull = copy.copy(base_case_hull(points))
     hull.append(hull[0])
     for i in range(0, len(hull) - 1):
         x1 = hull[i][0]
