@@ -81,19 +81,25 @@ def base_case_hull(points: List[Point]) -> List[Point]:
         (The naive method)
     """
     # TODO: You need to implement this function.
+    # TODO: HANDLE A POSSIBLE VERTICAL LINE!!!!!
     # clockwise_sort(points)
     hull_points = []
-    for idx, point0 in enumerate(points):
+    for idx1, point1 in enumerate(points):
         on_hull = False
 
-        for j in range(idx+1, len(points)):
+        for idx2, point2 in enumerate(points):
+            if idx1 == idx2: continue
+
             above = False
-            if y_intercept(point0, points[j], points[0][0]) > points[0][1]:
-                above = True
+
+            for i in range(len(points)):
+                if i == idx1 or i == idx2: continue
+                if y_intercept(point1, point2, points[i][0]) > points[i][1]:
+                    above = True
 
             good_line = True
             for k in points:
-                y_int = y_intercept(point0, points[j], k[0])
+                y_int = y_intercept(point1, point2, k[0])
                 if y_int >= k[1] and above:
                     continue
                 elif y_int <= k[1] and (not above):
@@ -106,9 +112,9 @@ def base_case_hull(points: List[Point]) -> List[Point]:
                 break
 
         if on_hull:
-            hull_points.append(point0)
-
-    return points
+            hull_points.append(point1)
+    clockwise_sort(hull_points)
+    return hull_points
 
 
 def compute_hull(points: List[Point]) -> List[Point]:
