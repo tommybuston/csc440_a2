@@ -1,5 +1,7 @@
 import math
 import sys
+from tkinter import RIGHT
+from tkinter.constants import NONE
 from typing import List
 from typing import Tuple
 
@@ -89,24 +91,12 @@ def base_case_hull(points: List[Point]) -> List[Point]:
 
         for idx2, point2 in enumerate(points):
             if idx1 == idx2: continue
+            good_line = 0
+            if point1[0] == point2[0]:
+                good_line = check_line_UNdefined(points, point1, point2)
+            else:
+                good_line = check_line_defined(points, point1, point2)
 
-            above = False
-
-            for i in range(len(points)):
-                if i == idx1 or i == idx2: continue
-                if y_intercept(point1, point2, points[i][0]) > points[i][1]:
-                    above = True
-
-            good_line = True
-            for k in points:
-                y_int = y_intercept(point1, point2, k[0])
-                if y_int >= k[1] and above:
-                    continue
-                elif y_int <= k[1] and (not above):
-                    continue
-                else:
-                    good_line = False
-                    break
             if good_line: 
                 on_hull = True
                 break
@@ -116,6 +106,46 @@ def base_case_hull(points: List[Point]) -> List[Point]:
     clockwise_sort(hull_points)
     return hull_points
 
+def check_line_defined(points, point1, point2):
+    above = False
+    for i in range(len(points)):
+        if collinear(point1, point2, points[i]): continue
+        if y_intercept(point1, point2, points[i][0]) > points[i][1]:
+            above = True
+            break
+
+    good_line = True
+    for k in points:
+        y_int = y_intercept(point1, point2, k[0])
+        if (y_int >= k[1]) and above:
+            continue
+        elif (y_int <= k[1]) and (not above):
+            continue
+        else:
+            good_line = False
+            break
+    return good_line
+
+def check_line_UNdefined(points, point1, point2):
+    right = False
+    x_val = point1[0]
+    for i in range(len(points)):
+        if collinear(point1, point2, points[i]): continue
+
+        if points[i][0] > x_val:
+            right = True
+            break
+
+    good_line = True
+    for k in points:
+        if (k[0] >= x_val) and right :
+            continue
+        elif (k[0] <= x_val) and (not right):
+            continue
+        else:
+            good_line = False
+            break
+    return good_line
 
 def compute_hull(points: List[Point]) -> List[Point]:
     """
@@ -125,4 +155,5 @@ def compute_hull(points: List[Point]) -> List[Point]:
     # TODO: Implement a correct computation of the convex hull
     #  using the divide-and-conquer algorithm
     # TODO: Document your Initialization, Maintenance and Termination invariants.
+    base_case_hull(points)
     return points
