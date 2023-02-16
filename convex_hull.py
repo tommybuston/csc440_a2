@@ -85,6 +85,9 @@ def base_case_hull(points: List[Point]) -> List[Point]:
     # TODO: You need to implement this function.
     # TODO: HANDLE A POSSIBLE VERTICAL LINE!!!!!
     # clockwise_sort(points)
+    if len(points) <=3:
+        return points
+
     hull_points = []
     for idx1, point1 in enumerate(points):
         on_hull = False
@@ -160,7 +163,7 @@ def compute_hull(points: List[Point]) -> List[Point]:
 
     points.sort()
     side_A = points[0:(len(points)//2)]
-    side_B = points[(len(points)//2):0]
+    side_B = points[(len(points)//2):]
 
     hull_A = compute_hull(side_A)
     hull_B = compute_hull(side_B)
@@ -168,19 +171,52 @@ def compute_hull(points: List[Point]) -> List[Point]:
     ######## MERGE ########
     i = len(hull_A)-1
     j = 0
-    midline = (hull_A[i][0]+hull_B[j][0])/2
+    midline = (hull_A[i][0]+hull_B[j][0])//2
+    
+    ##### Top Tangent #####
+    while(True):
+        y_int = y_intercept(hull_A[i], hull_B[j], int(midline))
 
-    # while(True):
-        # y_int = y_intercept(hull_A[i], hull_B[j], midline)
-        #
-        # if is_counter_clockwise(hull_A[i], hull_A[i-1], hull_A[i-2]):
-        #
-        # elif is_clockwise(hull_B[j], hull_B[j+1], hull_B[j+2]):
-        #
-        # if y_intercept(hull_A[i-1], hull_B[j], midline) > y_int:
-        #     i -= 1
-        # elif y_intercept(hull_A[i], hull_B[j+1], midline) < y_int:
-        #     j += 1
-        #
-    return points
+        if is_clockwise(hull_A[i-1], hull_A[i], (midline, int(y_int))):
+            i-=1
+            continue
+        elif is_counter_clockwise(hull_B[j+1], hull_B[j], (midline, int(y_int))):
+            j+=1
+            continue
+
+        if y_intercept(hull_A[i-1], hull_B[j], int(midline)) > y_int:
+            hull_A.pop(i)
+        elif y_intercept(hull_A[i], hull_B[j+1], int(midline)) > y_int:
+            hull_B.pop(j)
+        else:
+            break
+        #BAD!!!!!! 
+        if i==0 or j==len(hull_B)-1:
+            break
+    ##### Bottom Tangent #####
+    k = len(hull_A)-1
+    l = 0
+    while(True):
+        y_int = y_intercept(hull_A[k], hull_B[l], int(midline))
+
+        if is_clockwise(hull_A[k-1], hull_A[k], (midline, int(y_int))):
+            k-=1
+            continue
+        elif is_counter_clockwise(hull_B[l+1], hull_B[l], (midline, int(y_int))):
+            l+=1
+            continue
+
+        if y_intercept(hull_A[k-1], hull_B[l], int(midline)) < y_int:
+            hull_A.pop(k)
+        elif y_intercept(hull_A[k], hull_B[l+1], int(midline)) < y_int:
+            hull_B.pop(l)
+        else:
+            break
+        #BAD!!!!!
+        if k==0 or l==len(hull_B)-1:
+            break
+
+    hull = hull_A+hull_B
+    clockwise_sort(hull)
+    return hull
 
