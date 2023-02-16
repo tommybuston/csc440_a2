@@ -155,5 +155,32 @@ def compute_hull(points: List[Point]) -> List[Point]:
     # TODO: Implement a correct computation of the convex hull
     #  using the divide-and-conquer algorithm
     # TODO: Document your Initialization, Maintenance and Termination invariants.
-    base_case_hull(points)
+    if len(points) < 7:
+        return base_case_hull(points)
+
+    points.sort()
+    side_A = points[0:(len(points)//2)]
+    side_B = points[(len(points)//2):0]
+
+    hull_A = compute_hull(side_A)
+    hull_B = compute_hull(side_B)
+
+    ######## MERGE ########
+    i = len(hull_A)-1
+    j = 0
+    midline = (hull_A[i][0]+hull_B[j][0])/2
+
+    # while(True):
+        # y_int = y_intercept(hull_A[i], hull_B[j], midline)
+        #
+        # if is_counter_clockwise(hull_A[i], hull_A[i-1], hull_A[i-2]):
+        #
+        # elif is_clockwise(hull_B[j], hull_B[j+1], hull_B[j+2]):
+        #
+        # if y_intercept(hull_A[i-1], hull_B[j], midline) > y_int:
+        #     i -= 1
+        # elif y_intercept(hull_A[i], hull_B[j+1], midline) < y_int:
+        #     j += 1
+        #
     return points
+
