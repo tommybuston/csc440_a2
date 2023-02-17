@@ -85,8 +85,8 @@ def base_case_hull(points: List[Point]) -> List[Point]:
     # TODO: You need to implement this function.
     # TODO: HANDLE A POSSIBLE VERTICAL LINE!!!!!
     # clockwise_sort(points)
-    if len(points) <=3:
-        return points
+    if len(points) < 3:
+        return []
 
     hull_points = []
     for idx1, point1 in enumerate(points):
@@ -160,7 +160,6 @@ def compute_hull(points: List[Point]) -> List[Point]:
     # TODO: Document your Initialization, Maintenance and Termination invariants.
 
     if len(points) < 7:
-        print("Base Case")
         return base_case_hull(points)
 
     clockwise_sort(points)
@@ -215,7 +214,6 @@ def compute_hull(points: List[Point]) -> List[Point]:
     hull = []
     counter = hull_A.index(low_tan[0])
     while(True):
-        print("second")
         hull.append(hull_A[counter%len(hull_A)])
         if hull_A[counter%len(hull_A)] == up_tan[0]:
             break
@@ -223,12 +221,10 @@ def compute_hull(points: List[Point]) -> List[Point]:
 
     counter = hull_B.index(up_tan[1])
     while(True):
-        print("Third")
         hull.append(hull_B[counter%len(hull_B)])
         if hull_B[counter%len(hull_B)] == low_tan[1]:
             break
         counter += 1
      
-    print("Returned")
     clockwise_sort(hull)
     return hull        
