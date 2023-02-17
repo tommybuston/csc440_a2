@@ -167,56 +167,58 @@ def compute_hull(points: List[Point]) -> List[Point]:
 
     hull_A = compute_hull(side_A)
     hull_B = compute_hull(side_B)
+    hull_A.sort()
+    hull_B.sort()
 
     ######## MERGE ########
     i = len(hull_A)-1
     j = 0
     midline = (hull_A[i][0]+hull_B[j][0])//2
-    
+    up_tan = [hull_A[i], hull_B[j]]
     ##### Top Tangent #####
     while(True):
-        y_int = y_intercept(hull_A[i], hull_B[j], int(midline))
-
-        if is_clockwise(hull_A[i-1], hull_A[i], (midline, int(y_int))):
+        if i!=1 and is_clockwise(hull_A[i], hull_A[i-1], hull_A[i-2]):
             i-=1
             continue
-        elif is_counter_clockwise(hull_B[j+1], hull_B[j], (midline, int(y_int))):
+        elif j!=(len(hull_B)-2) and is_counter_clockwise(hull_B[j], hull_B[j+1], hull_B[j+2]):
             j+=1
             continue
 
+        y_int = y_intercept(up_tan[0], up_tan[1], int(midline))
+
         if y_intercept(hull_A[i-1], hull_B[j], int(midline)) > y_int:
-            hull_A.pop(i)
+            i-=1
+            up_tan[0] = hull_A[i]
         elif y_intercept(hull_A[i], hull_B[j+1], int(midline)) > y_int:
-            hull_B.pop(j)
+            j+=1
+            up_tan[1] = hull_B[j]
         else:
             break
-        #BAD!!!!!! 
-        if i==0 or j==len(hull_B)-1:
-            break
+
     ##### Bottom Tangent #####
     k = len(hull_A)-1
     l = 0
-    while(True):
-        y_int = y_intercept(hull_A[k], hull_B[l], int(midline))
+    low_tan=[hull_A[k], hull_B[l]]
 
-        if is_clockwise(hull_A[k-1], hull_A[k], (midline, int(y_int))):
+    while(True):
+        if k!=1 and is_counter_clockwise(hull_A[k], hull_A[k-1], hull_A[k-2]):
             k-=1
             continue
-        elif is_counter_clockwise(hull_B[l+1], hull_B[l], (midline, int(y_int))):
+        elif l!=(len(hull_B)-2) and is_clockwise(hull_B[l], hull_B[l+1], hull_B[l+2]):
             l+=1
             continue
 
+        y_int = y_intercept(up_tan[0], up_tan[1], int(midline))
+
         if y_intercept(hull_A[k-1], hull_B[l], int(midline)) < y_int:
-            hull_A.pop(k)
+            k-=1
+            low_tan[0] = hull_A[k]
         elif y_intercept(hull_A[k], hull_B[l+1], int(midline)) < y_int:
-            hull_B.pop(l)
+            l+=1
+            low_tan[1] = hull_B[j]
         else:
-            break
-        #BAD!!!!!
-        if k==0 or l==len(hull_B)-1:
             break
 
     hull = hull_A+hull_B
     clockwise_sort(hull)
-    return hull
-
+    return hull        
