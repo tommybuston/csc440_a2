@@ -165,77 +165,70 @@ def compute_hull(points: List[Point]) -> List[Point]:
 
     clockwise_sort(points)
     print(points)
-    # points.sort()
-    # pseudo_middle = len(points)//2;
-    #
-    # #TODO: handle the left list being empty
-    # while(points[pseudo_middle] == points[pseudo_middle+1]):
-    #     pseudo_middle+=1
-    #     if pseudo_middle == (len(points)-1):
-    #         return base_case_hull(points)
-    # print("Midline:", pseudo_middle)
-    # side_A = points[0:pseudo_middle]
-    # side_B = points[pseudo_middle:]
-    #
-    # hull_A = compute_hull(side_A)
-    # hull_B = compute_hull(side_B)
-    #
-    # ######## MERGE ########
-    # i = hull_A.index(max(hull_A))
-    # j = hull_B.index(min(hull_B))
-    # k = i
-    # l = j
-    #
-    # midline = (hull_A[i][0]+hull_B[j][0])//2
-    # up_tan=[hull_A[i], hull_B[j]]
-    # ##### Top Tangent #####
-    # while(True):
-    #     print("Stuck1")
-    #     y_int = y_intercept(up_tan[0], up_tan[1], int(midline))
-    #
-    #     if y_intercept(hull_A[(i-1)%len(hull_A)], hull_B[j], int(midline)) > y_int:
-    #         i = (i-1)%len(hull_A)
-    #         up_tan[0] = hull_A[i]
-    #     elif y_intercept(hull_A[i], hull_B[(j+1)%len(hull_B)], int(midline)) > y_int:
-    #         j = (j+1)%len(hull_B)
-    #         up_tan[1] = hull_B[j]
-    #     else:
-    #         break
-    #
-    # ##### Bottom Tangent #####
-    # low_tan=[hull_A[k], hull_B[l]]
-    # while(True):
-    #     print("Stuck2")
-    #     y_int = y_intercept(low_tan[0], low_tan[1], int(midline))
-    #
-    #     if y_intercept(hull_A[(k+1)%len(hull_A)], hull_B[l], int(midline)) < y_int:
-    #         k = (k+1)%len(hull_A)
-    #         low_tan[0] = hull_A[k]
-    #
-    #     elif y_intercept(hull_A[k], hull_B[(l-1)%len(hull_B)], int(midline)) < y_int:
-    #         l = (l-1)%len(hull_B)
-    #         low_tan[1] = hull_B[j]
-    #     else:
-    #         break
-    #
-    # hull = []
-    # counter = hull_A.index(low_tan[0])
-    # while(True):
-    #     print("second")
-    #     hull.append(hull_A[counter%len(hull_A)])
-    #     if hull_A[counter%len(hull_A)] == up_tan[0]:
-    #         break
-    #     counter += 1
-    #
-    # counter = hull_B.index(up_tan[1])
-    # while(True):
-    #     print("Third")
-    #     hull.append(hull_B[counter%len(hull_B)])
-    #     if hull_B[counter%len(hull_B)] == low_tan[1]:
-    #         break
-    #     counter += 1
-    #  
-    # print("Returned")
-    # clockwise_sort(hull)
-    # return hull        
-    return points
+    points.sort()
+    pseudo_middle = len(points)//2;
+
+    #TODO: handle the left list being empty
+    while(points[pseudo_middle] == points[pseudo_middle+1]):
+        pseudo_middle+=1
+        if pseudo_middle == (len(points)-1):
+            return base_case_hull(points)
+    side_A = points[0:pseudo_middle]
+    side_B = points[pseudo_middle:]
+
+    hull_A = compute_hull(side_A)
+    hull_B = compute_hull(side_B)
+    ######## MERGE ########
+    i = hull_A.index(max(hull_A))
+    j = hull_B.index(min(hull_B))
+    k = i
+    l = j
+
+    midline = (hull_A[i][0]+hull_B[j][0])//2
+    up_tan=[hull_A[i], hull_B[j]]
+    ##### Top Tangent #####
+    while(True):
+        y_int = y_intercept(up_tan[0], up_tan[1], int(midline))
+
+        if y_intercept(hull_A[(i-1)%len(hull_A)], up_tan[1], int(midline)) < y_int:
+            i -= 1
+            up_tan[0] = hull_A[i%len(hull_A)]
+        elif y_intercept(up_tan[0], hull_B[(j+1)%len(hull_B)], int(midline)) < y_int:
+            j += 1
+            up_tan[1] = hull_B[j%len(hull_B)]
+        else:
+            break
+    ##### Bottom Tangent #####
+    low_tan=[hull_A[k], hull_B[l]]
+    while(True):
+        y_int = y_intercept(low_tan[0], low_tan[1], int(midline))
+
+        if y_intercept(hull_A[(k+1)%len(hull_A)], low_tan[1], int(midline)) > y_int:
+            k += 1
+            low_tan[0] = hull_A[k%len(hull_A)]
+
+        elif y_intercept(low_tan[0], hull_B[(l-1)%len(hull_B)], int(midline)) > y_int:
+            l -= 1
+            low_tan[1] = hull_B[l%len(hull_B)]
+        else:
+            break
+    hull = []
+    counter = hull_A.index(low_tan[0])
+    while(True):
+        print("second")
+        hull.append(hull_A[counter%len(hull_A)])
+        if hull_A[counter%len(hull_A)] == up_tan[0]:
+            break
+        counter += 1
+
+    counter = hull_B.index(up_tan[1])
+    while(True):
+        print("Third")
+        hull.append(hull_B[counter%len(hull_B)])
+        if hull_B[counter%len(hull_B)] == low_tan[1]:
+            break
+        counter += 1
+     
+    print("Returned")
+    clockwise_sort(hull)
+    return hull        
