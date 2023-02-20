@@ -1,6 +1,6 @@
 import math
 import sys
-from tkinter import RIGHT
+from tkinter import HORIZONTAL, RIGHT
 from tkinter.constants import NONE
 from typing import List
 from typing import Tuple
@@ -9,7 +9,7 @@ EPSILON = sys.float_info.epsilon
 Point = Tuple[int, int]
 
 
-def y_intercept(p1: Point, p2: Point, x: int) -> float:
+def y_intercept(p1: Point, p2: Point, x: float) -> float:
     """
     Given two points, p1 and p2, an x coordinate from a vertical line,
     compute and return the the y-intercept of the line segment p1->p2
@@ -85,8 +85,12 @@ def base_case_hull(points: List[Point]) -> List[Point]:
     # TODO: You need to implement this function.
     # TODO: HANDLE A POSSIBLE VERTICAL LINE!!!!!
     # clockwise_sort(points)
-    if len(points) < 3:
-        return []
+    points = list(set(points))
+    if len(points) == 0:
+        return points
+    if len(points) <= 3:
+        clockwise_sort(points)
+        return points
 
     hull_points = []
     for idx1, point1 in enumerate(points):
@@ -96,7 +100,7 @@ def base_case_hull(points: List[Point]) -> List[Point]:
             if idx1 == idx2: continue
             good_line = 0
             if point1[0] == point2[0]:
-                good_line = check_line_UNdefined(points, point1, point2)
+                good_line = check_line_UNdefined(points, point2)
             else:
                 good_line = check_line_defined(points, point1, point2)
 
@@ -106,49 +110,48 @@ def base_case_hull(points: List[Point]) -> List[Point]:
 
         if on_hull:
             hull_points.append(point1)
+
     clockwise_sort(hull_points)
     return hull_points
 
 def check_line_defined(points, point1, point2):
-    above = False
-    for i in range(len(points)):
-        if collinear(point1, point2, points[i]): continue
-        if y_intercept(point1, point2, points[i][0]) > points[i][1]:
-            above = True
-            break
+    test1 = True
+    test2 = True
 
-    good_line = True
-    for k in points:
-        y_int = y_intercept(point1, point2, k[0])
-        if (y_int >= k[1]) and above:
+    # print("=================================================")
+    # print("P1:",point1,"P2",point2)
+    for p in points :
+        if p == point1 or p == point2:
             continue
-        elif (y_int <= k[1]) and (not above):
-            continue
-        else:
-            good_line = False
-            break
-    return good_line
+        y_int = y_intercept(point1, point2, p[0])
+        # print("y_int:", y_int)
+        # print("P:",p)
 
-def check_line_UNdefined(points, point1, point2):
-    right = False
-    x_val = point1[0]
-    for i in range(len(points)):
-        if collinear(point1, point2, points[i]): continue
+        if y_int < p[1]:
+            test1 = False
+        elif y_int > p[1]:
+            test2 = False
+    
+    if test1 or test2:
+        # print("GOOD")
+        return True
+    else:
+        # print("BAD")
+        return False
 
-        if points[i][0] > x_val:
-            right = True
-            break
+def check_line_UNdefined(points, point2):
+    test1 = True
+    test2 = True
+    for p in points :
+        if point2[0] < p[0]:
+            test1 = False
+        elif point2[0] > p[0]:
+            test2 = False
 
-    good_line = True
-    for k in points:
-        if (k[0] >= x_val) and right :
-            continue
-        elif (k[0] <= x_val) and (not right):
-            continue
-        else:
-            good_line = False
-            break
-    return good_line
+    if test1 or test2:
+        return True
+    else:
+        return False
 
 def compute_hull(points: List[Point]) -> List[Point]:
     """
@@ -161,70 +164,174 @@ def compute_hull(points: List[Point]) -> List[Point]:
 
     if len(points) < 7:
         return base_case_hull(points)
-
-    clockwise_sort(points)
-    print(points)
+    
     points.sort()
+
+    hull = divide(points)
+
+    return hull
+
+
+def divide(points: List[Point]):
+    if len(points) < 6:
+        return base_case_hull(points)
+
     pseudo_middle = len(points)//2;
 
-    #TODO: handle the left list being empty
-    while(points[pseudo_middle] == points[pseudo_middle+1]):
+    while(points[pseudo_middle+1][0] == points[pseudo_middle][0]):
         pseudo_middle+=1
         if pseudo_middle == (len(points)-1):
             return base_case_hull(points)
-    side_A = points[0:pseudo_middle]
-    side_B = points[pseudo_middle:]
+    # print("Length:", len(points), "Middle:", pseudo_middle)
+    # print(points[0:pseudo_middle+1])
+    # print(points[pseudo_middle+1:])
+    hull_A = divide(points[0:pseudo_middle+1])
+    hull_B = divide(points[pseudo_middle+1:])
 
-    hull_A = compute_hull(side_A)
-    hull_B = compute_hull(side_B)
-    ######## MERGE ########
+    hull = merge(hull_A, hull_B)
+
+    return hull
+
+# def merge(hull_A, hull_B):
+#
+#     a_collinear = is_colinear(hull_A)
+#     b_collinear = is_colinear(hull_B)
+#
+#
+#     i = hull_A.index(max(hull_A))
+#     j = hull_B.index(min(hull_B))
+#     k = i
+#     l = j
+#     
+#     midline = (hull_A[i][0]+hull_B[j][0])/2
+#
+#     if not a_collinear:
+#         ##### Top Tangent #####
+#         up_tan=[hull_A[i], hull_B[j]]
+#         while(True):
+#             y_int = y_intercept(up_tan[0], up_tan[1], midline)
+#
+#             if y_intercept(hull_A[(i-1)%len(hull_A)], up_tan[1], midline) < y_int:
+#                 i -= 1
+#                 up_tan[0] = hull_A[i%len(hull_A)]
+#             elif y_intercept(up_tan[0], hull_B[(j+1)%len(hull_B)], midline) < y_int:
+#                 j += 1
+#                 up_tan[1] = hull_B[j%len(hull_B)]
+#             else:
+#                 break
+#     if not b_collinear:
+#         ##### Bottom Tangent #####
+#         low_tan=[hull_A[k], hull_B[l]]
+#         while(True):
+#             y_int = y_intercept(low_tan[0], low_tan[1], midline)
+#
+#             if y_intercept(hull_A[(k+1)%len(hull_A)], low_tan[1], midline) > y_int:
+#                 k += 1
+#                 low_tan[0] = hull_A[k%len(hull_A)]
+#
+#             elif y_intercept(low_tan[0], hull_B[(l-1)%len(hull_B)], midline) > y_int:
+#                 l -= 1
+#                 low_tan[1] = hull_B[l%len(hull_B)]
+#             else:
+#                 break
+#     
+#     hull = []
+#     
+#     if a_collinear:
+#         hull = hull + hull_A
+#     else:
+#         counter = k
+#         while(True):
+#             hull.append(hull_A[counter%len(hull_A)])
+#             if hull_A[counter%len(hull_A)] == up_tan[0]:
+#                 break
+#             counter += 1
+#
+#     if b_collinear:
+#         hull = hull + hull_B
+#     else:
+#         counter = j
+#         while(True):
+#             hull.append(hull_B[counter%len(hull_B)])
+#             if hull_B[counter%len(hull_B)] == low_tan[1]:
+#                 break
+#             counter += 1
+#
+#     if a_collinear or b_collinear:
+#         clockwise_sort(hull)
+#      
+#     return hull    
+#
+def is_colinear(points):
+    ho = True
+    vert = True
+    for i in range(len(points)-1):
+        if points[i][0] != points[i+1][0]:
+            vert = False
+        if points[i][1] != points[i+1][1]:
+            ho = False
+        if (not vert) and (not ho):
+            return False
+
+    return True
+
+def merge(hull_A, hull_B):
+
+    if is_colinear(hull_A) or is_colinear(hull_B):
+        return base_case_hull(hull_A+hull_B)
+
     i = hull_A.index(max(hull_A))
     j = hull_B.index(min(hull_B))
     k = i
     l = j
+    
+    midline = (hull_A[i][0]+hull_B[j][0])/2
 
-    midline = (hull_A[i][0]+hull_B[j][0])//2
-    up_tan=[hull_A[i], hull_B[j]]
     ##### Top Tangent #####
+    up_tan=[hull_A[i], hull_B[j]]
     while(True):
-        y_int = y_intercept(up_tan[0], up_tan[1], int(midline))
+        y_int = y_intercept(up_tan[0], up_tan[1], midline)
 
-        if y_intercept(hull_A[(i-1)%len(hull_A)], up_tan[1], int(midline)) < y_int:
+        if y_intercept(hull_A[(i-1)%len(hull_A)], up_tan[1], midline) < y_int:
             i -= 1
             up_tan[0] = hull_A[i%len(hull_A)]
-        elif y_intercept(up_tan[0], hull_B[(j+1)%len(hull_B)], int(midline)) < y_int:
+        elif y_intercept(up_tan[0], hull_B[(j+1)%len(hull_B)], midline) < y_int:
             j += 1
             up_tan[1] = hull_B[j%len(hull_B)]
         else:
             break
+
     ##### Bottom Tangent #####
     low_tan=[hull_A[k], hull_B[l]]
     while(True):
-        y_int = y_intercept(low_tan[0], low_tan[1], int(midline))
+        y_int = y_intercept(low_tan[0], low_tan[1], midline)
 
-        if y_intercept(hull_A[(k+1)%len(hull_A)], low_tan[1], int(midline)) > y_int:
+        if y_intercept(hull_A[(k+1)%len(hull_A)], low_tan[1], midline) > y_int:
             k += 1
             low_tan[0] = hull_A[k%len(hull_A)]
 
-        elif y_intercept(low_tan[0], hull_B[(l-1)%len(hull_B)], int(midline)) > y_int:
+        elif y_intercept(low_tan[0], hull_B[(l-1)%len(hull_B)], midline) > y_int:
             l -= 1
             low_tan[1] = hull_B[l%len(hull_B)]
         else:
             break
+    
     hull = []
-    counter = hull_A.index(low_tan[0])
+    
+    counter = k
     while(True):
         hull.append(hull_A[counter%len(hull_A)])
         if hull_A[counter%len(hull_A)] == up_tan[0]:
             break
         counter += 1
 
-    counter = hull_B.index(up_tan[1])
+    counter = j
     while(True):
         hull.append(hull_B[counter%len(hull_B)])
         if hull_B[counter%len(hull_B)] == low_tan[1]:
             break
         counter += 1
      
-    clockwise_sort(hull)
-    return hull        
+    return hull    
+
+

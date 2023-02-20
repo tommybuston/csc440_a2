@@ -11,6 +11,7 @@ from convex_hull import compute_hull
 from convex_hull import is_clockwise
 from convex_hull import is_counter_clockwise
 from convex_hull import y_intercept
+from convex_hull import base_case_hull
 
 
 class TestGivenFunctions(unittest.TestCase):
@@ -79,13 +80,14 @@ class TestComputeHull(unittest.TestCase):
 
     @given(st.lists(  # generate a list
         st.tuples(  # of 2-tuples
-            st.integers(min_value=0, max_value=100_000),  # of integers in the interval [0, 100_000]
-            st.integers(min_value=0, max_value=100_000),
+            st.integers(min_value=0, max_value=1_000_000),  # of integers in the interval [0, 100_000]
+            st.integers(min_value=0, max_value=1_000_000),
         ),
-        min_size=3,  # minimum length of list
-        max_size=100_000,  # maximum length of list
+        min_size=10,  # minimum length of list
+        max_size=10_000_000,  # maximum length of list
         unique=True,  # list will contain unique elements
     ))
+
     def test_compute_hull(self, points):
         points = list(points)
         clockwise_sort(points)
@@ -93,3 +95,32 @@ class TestComputeHull(unittest.TestCase):
         hull = compute_hull(points)
         self.assertTrue(is_convex_hull(hull, points))
         return
+
+class TestBaseCaseHull(unittest.TestCase):
+    """
+    We provide one simple test here.
+    You should write several specific tests for yourself.
+    """
+
+    @given(st.lists(  # generate a list
+        st.tuples(  # of 2-tuples
+            st.integers(min_value=0, max_value=1_000_000),  # of integers in the interval [0, 100_000]
+            st.integers(min_value=0, max_value=1_000_000),
+        ),
+        min_size=10,  # minimum length of list
+        max_size=1_000_000,  # maximum length of list
+        unique=True,  # list will contain unique elements
+    ))
+
+    def test_base_case(self, points):
+        points = list(points)
+        clockwise_sort(points)
+
+        hull = base_case_hull(points)
+        self.assertTrue(is_convex_hull(hull, points))
+        return
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
+

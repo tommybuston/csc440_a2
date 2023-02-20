@@ -6,7 +6,7 @@ from tkinter import Tk
 from tkinter import Frame
 
 from convex_hull import compute_hull
-# from convex_hull import base_case_hull
+from convex_hull import base_case_hull
 
 previous_lines = set()
 
@@ -25,7 +25,9 @@ def update_status_bar(event):
 
 
 def draw_hull():
-    # hull = copy.copy(compute_hull(points))
+    # hull = copy.copy(base_case_hull(points))
+    # points = [(93325569, 29146), (0, 0), (0, 1), (1, 0)]
+    # points = [(0, 0),(0, 1),(0, 2),(0, 3),(0, 4),(1, 0),(3, 0),(4, 0),(5, 0),(9, 0)]
     hull = copy.copy(compute_hull(points))
     print('*' * 80)
     print(f'Convex Hull: {hull}')
