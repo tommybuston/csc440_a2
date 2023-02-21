@@ -118,14 +118,10 @@ def check_line_defined(points, point1, point2):
     test1 = True
     test2 = True
 
-    # print("=================================================")
-    # print("P1:",point1,"P2",point2)
     for p in points :
         if p == point1 or p == point2:
             continue
         y_int = y_intercept(point1, point2, p[0])
-        # print("y_int:", y_int)
-        # print("P:",p)
 
         if y_int < p[1]:
             test1 = False
@@ -133,10 +129,8 @@ def check_line_defined(points, point1, point2):
             test2 = False
     
     if test1 or test2:
-        # print("GOOD")
         return True
     else:
-        # print("BAD")
         return False
 
 def check_line_UNdefined(points, point2):
@@ -153,6 +147,12 @@ def check_line_UNdefined(points, point2):
     else:
         return False
 
+"""
+Invariant 1: compute_hull() and base_case_hull() will always return 
+only the points on the hull of the given points
+
+Invariant 2: the points on the hull will always be clockwise sorted
+"""
 def compute_hull(points: List[Point]) -> List[Point]:
     """
     Given a list of points, computes the convex hull around those points
@@ -171,7 +171,9 @@ def compute_hull(points: List[Point]) -> List[Point]:
 
     return hull
 
-
+"""
+INITIALIZATION
+"""
 def divide(points: List[Point]):
     if len(points) < 6:
         return base_case_hull(points)
@@ -182,9 +184,7 @@ def divide(points: List[Point]):
         pseudo_middle+=1
         if pseudo_middle == (len(points)-1):
             return base_case_hull(points)
-    # print("Length:", len(points), "Middle:", pseudo_middle)
-    # print(points[0:pseudo_middle+1])
-    # print(points[pseudo_middle+1:])
+
     hull_A = divide(points[0:pseudo_middle+1])
     hull_B = divide(points[pseudo_middle+1:])
 
@@ -192,76 +192,6 @@ def divide(points: List[Point]):
 
     return hull
 
-# def merge(hull_A, hull_B):
-#
-#     a_collinear = is_colinear(hull_A)
-#     b_collinear = is_colinear(hull_B)
-#
-#
-#     i = hull_A.index(max(hull_A))
-#     j = hull_B.index(min(hull_B))
-#     k = i
-#     l = j
-#     
-#     midline = (hull_A[i][0]+hull_B[j][0])/2
-#
-#     if not a_collinear:
-#         ##### Top Tangent #####
-#         up_tan=[hull_A[i], hull_B[j]]
-#         while(True):
-#             y_int = y_intercept(up_tan[0], up_tan[1], midline)
-#
-#             if y_intercept(hull_A[(i-1)%len(hull_A)], up_tan[1], midline) < y_int:
-#                 i -= 1
-#                 up_tan[0] = hull_A[i%len(hull_A)]
-#             elif y_intercept(up_tan[0], hull_B[(j+1)%len(hull_B)], midline) < y_int:
-#                 j += 1
-#                 up_tan[1] = hull_B[j%len(hull_B)]
-#             else:
-#                 break
-#     if not b_collinear:
-#         ##### Bottom Tangent #####
-#         low_tan=[hull_A[k], hull_B[l]]
-#         while(True):
-#             y_int = y_intercept(low_tan[0], low_tan[1], midline)
-#
-#             if y_intercept(hull_A[(k+1)%len(hull_A)], low_tan[1], midline) > y_int:
-#                 k += 1
-#                 low_tan[0] = hull_A[k%len(hull_A)]
-#
-#             elif y_intercept(low_tan[0], hull_B[(l-1)%len(hull_B)], midline) > y_int:
-#                 l -= 1
-#                 low_tan[1] = hull_B[l%len(hull_B)]
-#             else:
-#                 break
-#     
-#     hull = []
-#     
-#     if a_collinear:
-#         hull = hull + hull_A
-#     else:
-#         counter = k
-#         while(True):
-#             hull.append(hull_A[counter%len(hull_A)])
-#             if hull_A[counter%len(hull_A)] == up_tan[0]:
-#                 break
-#             counter += 1
-#
-#     if b_collinear:
-#         hull = hull + hull_B
-#     else:
-#         counter = j
-#         while(True):
-#             hull.append(hull_B[counter%len(hull_B)])
-#             if hull_B[counter%len(hull_B)] == low_tan[1]:
-#                 break
-#             counter += 1
-#
-#     if a_collinear or b_collinear:
-#         clockwise_sort(hull)
-#      
-#     return hull    
-#
 def is_colinear(points):
     ho = True
     vert = True
@@ -275,6 +205,9 @@ def is_colinear(points):
 
     return True
 
+"""
+MAINTENANCE
+"""
 def merge(hull_A, hull_B):
 
     if is_colinear(hull_A) or is_colinear(hull_B):

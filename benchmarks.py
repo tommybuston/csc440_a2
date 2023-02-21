@@ -50,7 +50,7 @@ def run_benchmarks():
     #  and record the time it takes on inputs of different sizes.
     # TODO: Plot a graph of runtime vs input size. What can you infer from the shape?
 
-    sizes: List[int] = list(range(2_250_000, 2_750_000, 250_000))
+    sizes: List[int] = list(range(0, 1_100_000, 100_000))
     dnc_hull_times: List[float] = list()
     # naive_hull_times: List[float] = list()
     # points = generate_points(1000000)
@@ -70,14 +70,15 @@ def run_benchmarks():
         start_time = time.time()
         # TODO: call compute_hull here
         hull=compute_hull(points)
+        # hull=base_case_hull(points)
 
         time_taken = time.time() - start_time  # time taken (in seconds) for divide-and-conquer
         # print("n:", n, ", Time:", time_taken) 
         print(f'dnc_time_taken: {time_taken:.3f},', end='\n')
         dnc_hull_times.append(time_taken)
-        # if n!=0:
-        #     if is_convex_hull(hull,points):
-        #         print("Passed:", n)
+        if n!=0:
+            if is_convex_hull(hull,points):
+                print("Passed:", n)
 
         # start_time = time.time()
         # # TODO: call base_case_hull here
