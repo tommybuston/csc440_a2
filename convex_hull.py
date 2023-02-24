@@ -1,7 +1,7 @@
 import math
 import sys
-from tkinter import HORIZONTAL, RIGHT
-from tkinter.constants import NONE
+# from tkinter import HORIZONTAL, RIGHT
+# from tkinter.constants import NONE
 from typing import List
 from typing import Tuple
 
@@ -266,5 +266,3 @@ def merge(hull_A, hull_B):
         counter += 1
      
     return hull    
-
-
